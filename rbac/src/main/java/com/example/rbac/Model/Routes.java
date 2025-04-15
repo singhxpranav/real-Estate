@@ -1,6 +1,5 @@
 package com.example.rbac.Model;
 
-import com.backend.karyanestApplication.Model.RolePermission;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,7 +27,7 @@ public class Routes { //roles
     private String permission;
 
 
-//    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-//    @ToString.Exclude
-//    private List<RolePermission> rolePermissions;
+    @OneToMany(mappedBy = "routes", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<RolesPermission> rolePermissions;
 }

@@ -12,9 +12,9 @@ import java.util.List;
 @Repository
 public interface RoutesRepository extends JpaRepository<Routes, Long> {
     Routes findByPath(@Param("path") String path);
-//    Routes findByPathEquals(String path);
-//    // Repository method for finding all pattern routes
-//    @Query("SELECT r FROM Routes r WHERE r.path LIKE '%/{id}%'")
-//    List<Routes> findAllIdPatternRoutes();
-//    List<Routes> findAllByPath(String path);
+    Routes findByPathEquals(String path);
+    // Repository method for finding all pattern routes
+    @Query("SELECT r FROM Routes r WHERE r.path LIKE '%/{id}%'")
+    List<Routes> findAllIdPatternRoutes();
+    List<Routes> findAllByPath(String path);
 }

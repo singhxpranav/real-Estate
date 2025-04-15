@@ -41,7 +41,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         // Bypass authentication for certain endpoints
         if (path.matches("^/v1/auth/.*") || path.matches("^/v1/home/.*") ||
                 path.matches("^/v3/api-docs.*") || path.matches("^/swagger-ui/.*") ||
-                path.matches("^/swagger-ui.html$") || path.matches("^/test/.*")) {
+                path.matches("^/swagger-ui.html$") || path.matches("^/rbac/test/.*")) {
 
             chain.doFilter(request, response);
             return;

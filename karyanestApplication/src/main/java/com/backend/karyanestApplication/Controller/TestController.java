@@ -42,13 +42,13 @@ public class TestController {
         return exampleService.getServiceData();
     }
 
-    @PostMapping("/create_routes")
-    public ResponseEntity<Map<String, Object>> createRoutes(@RequestBody Route route) {
-        Route createdRoute = routeService.createRoute(route);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "Route Created Successfully", "route", createdRoute));
-    }
+//    @PostMapping("/create_routes")
+//    public ResponseEntity<Map<String, Object>> createRoutes(@RequestBody Route route) {
+//        Route createdRoute = routeService.createRoute(route);
+//
+//        return ResponseEntity.status(HttpStatus.CREATED)
+//                .body(Map.of("message", "Route Created Successfully", "route", createdRoute));
+//    }
 
     @PostMapping("/create_permits")
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -71,22 +71,22 @@ public class TestController {
                 .body(Map.of("message", "Permission Created Successfully", "permission", createdPermission));
     }
 
-    @PostMapping("/assign_permission_to_role")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object>> assignPermissionToRole(@RequestBody Map<String, String> requestBody) {
-        Long roleId = Long.valueOf(requestBody.get("roleId"));
-        String path = requestBody.get("path");
-        Long permissionId = Long.valueOf(requestBody.get("permission_id"));
-
-        Route route = routeService.getRouteByPath(path);
-        if (route == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User or Route not found"));
-        }
-
-        assignPermissionService.assignPermissionToRole(roleId, path, permissionId);
-
-        return ResponseEntity.ok(Map.of("message", "Permission assigned to role successfully"));
-    }
+//    @PostMapping("/assign_permission_to_role")
+////    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    public ResponseEntity<Map<String, Object>> assignPermissionToRole(@RequestBody Map<String, String> requestBody) {
+//        Long roleId = Long.valueOf(requestBody.get("roleId"));
+//        String path = requestBody.get("path");
+//        Long permissionId = Long.valueOf(requestBody.get("permission_id"));
+//
+//        Route route = routeService.getRouteByPath(path);
+//        if (route == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body(Map.of("error", "User or Route not found"));
+//        }
+//
+//        assignPermissionService.assignPermissionToRole(roleId, path, permissionId);
+//
+//        return ResponseEntity.ok(Map.of("message", "Permission assigned to role successfully"));
+//    }
 
 }
