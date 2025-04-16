@@ -7,6 +7,7 @@ import com.backend.karyanestApplication.Model.Message;
 import com.backend.karyanestApplication.Model.User;
 import com.backend.karyanestApplication.Repositry.ConversationRepository;
 import com.backend.karyanestApplication.Repositry.MessageRepository;
+import com.example.rbac.Service.RolesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class ChatService {
     private UserService userService;
 
     @Autowired
-    private RoleService roleService;
+    private RolesService roleService;
 
     @Autowired
     private ConversationRepository conversationRepository;
@@ -109,7 +110,7 @@ public class ChatService {
 
     private boolean isAgent(Long userId) {
         User user = userService.findById(userId);
-        return user.getUserRole().getName().equals("ROLE_AGENT");
+        return user.getRole().getName().equals("ROLE_AGENT");
     }
 
     public boolean isUserPartOfConversation(Long userId, Long conversationId) {

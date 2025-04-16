@@ -21,23 +21,14 @@
 	</properties>
 
 	<dependencies>
-		<!-- Dependency on Module B -->
+		<!-- Dependency on Module rbac -->
 		<dependency>
 			<groupId>com.example</groupId>
-			<artifactId>module-b</artifactId>
+			<artifactId>rbac</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
-		<!-- Dependency on Module B -->
-		<dependency>
-			<groupId>com.example</groupId>
-			<artifactId>module-a</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- Dependency on Module A & B -->
-
+		<!-- Dependency on Module rbac -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

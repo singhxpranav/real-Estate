@@ -1,8 +1,8 @@
 package com.example.rbac.Repository;
 
 import com.example.rbac.Model.RolesPermission;
-import com.example.rbac.Model.Routes;
-import com.example.rbac.Model.UserRoles;
+import com.example.rbac.Model.Permissions;
+import com.example.rbac.Model.Roles;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,9 +15,9 @@ public interface RolesPermissionRepository extends JpaRepository<RolesPermission
 
     List<RolesPermission> findPermissionsByRoleId(Long roleId);
 
-    RolesPermission findFirstByRoleAndRoutes(UserRoles role, Routes routes);
+    RolesPermission findByRoleAndPermissions(Roles role, Permissions permissions);
 
-    //    RolePermission findByRoleIdAndRouteIdAndPermissionId(Long id, Long id1, Long id2);
-    //boolean existsByRoleIdAndRouteIdAndPermissionId(Long id, Long id1, Long id2);
-    //boolean existsByRole_IdAndRoute_Id(Long roleId, Long routeId);
+//        RolePermission findByRoleIdAndRouteIdAndPermissionId(Long id, Long id1, Long id2);
+//    boolean existsByRoleIdAndRouteIdAndPermissionId(Long id, Long id1, Long id2);
+//    boolean existsByRole_IdAndRoute_Id(Long roleId, Long routeId);
 }

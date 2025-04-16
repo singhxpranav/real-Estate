@@ -1,7 +1,7 @@
 package com.backend.karyanestApplication.Middleware;
 
 import com.backend.karyanestApplication.DTO.JWTUserDTO;
-import com.backend.karyanestApplication.Service.PermissionService;
+//import com.backend.karyanestApplication.Service.PermissionService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +28,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Autowired
     private UserContext userContext; // Using UserContext instead of JwtUtil
 
-    @Autowired
-    private PermissionService permissionService;
+//    @Autowired
+//    private PermissionService permissionService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -41,7 +41,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
         // Bypass authentication for certain endpoints
         if (path.matches("^/v1/auth/.*") || path.matches("^/v1/home/.*") ||
                 path.matches("^/v3/api-docs.*") || path.matches("^/swagger-ui/.*") ||
-                path.matches("^/swagger-ui.html$") || path.matches("^/rbac/test/.*")) {
+                path.matches("^/swagger-ui.html$")) {
 
             chain.doFilter(request, response);
             return;
@@ -61,12 +61,12 @@ public class AuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (!permissionService.checkPermission(role, path, username)) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Access Denied: You do not have permission to view this resource or access data belonging to another.\"}");
-            return;
-        }
+//        if (!permissionService.checkPermission(role, path, username)) {
+//            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+//            response.setContentType("application/json");
+//            response.getWriter().write("{\"error\": \"Access Denied: You do not have permission to view this resource or access data belonging to another.\"}");
+//            return;
+//        }
 
         // Authenticate the user
         GrantedAuthority authority = userContext.getUserRoleAuthority(request);

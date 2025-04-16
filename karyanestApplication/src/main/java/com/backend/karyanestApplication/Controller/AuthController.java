@@ -8,6 +8,7 @@ import com.backend.karyanestApplication.JwtSecurity.JwtUtil;
 import com.backend.karyanestApplication.Model.*;
 import com.backend.karyanestApplication.Service.*;
 import com.backend.karyanestApplication.UTIL.UserContext;
+import com.example.rbac.Service.RolesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,8 +49,7 @@ public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(LeadsController.class);
     private static final String OTP_VERIFICATION_TEMPLATE1 = "http://karynest-real-state.azurewebsites.net/v1/auth/verify-user-otp";
     @Autowired
-    public AuthController(JwtUtil jwtUtil, ReferenceTokenService referenceTokenService, UserService userService,
-                          RoleService roleService, AuthenticationManager authenticationManager, UserActivityLogService userActivityLog, PermissionService permissionService) {
+    public AuthController(JwtUtil jwtUtil, ReferenceTokenService referenceTokenService, UserService userService, AuthenticationManager authenticationManager, UserActivityLogService userActivityLog) {
         this.jwtUtil = jwtUtil;
         this.referenceTokenService = referenceTokenService;
         this.userService = userService;

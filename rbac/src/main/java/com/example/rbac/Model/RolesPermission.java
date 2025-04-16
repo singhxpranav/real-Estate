@@ -19,11 +19,11 @@ public class RolesPermission {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
     @ToString.Exclude
-    private UserRoles role;
+    private Roles role;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "route_id", nullable = false)
+    @JoinColumn(name = "permissions_id", nullable = false)
     @ToString.Exclude
-    private Routes routes;
+    private Permissions permissions;
 
 }

@@ -1,7 +1,6 @@
 package com.example.rbac.Service;
 
-import com.backend.karyanestApplication.Exception.CustomException;
-import com.example.rbac.Model.UserRoles;
+import com.example.rbac.Model.Roles;
 import com.example.rbac.Repository.RolesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,20 +21,20 @@ public class RolesService {
 
     // ✅ Get all roles
     @Transactional(readOnly = true)
-    public List<UserRoles> getAllRoles() {
+    public List<Roles> getAllRoles() {
         return roleRepository.findAll();
     }
 
     // ✅ Get role by ID
     @Transactional(readOnly = true)
-    public UserRoles getRoleById(Long id) {
+    public Roles getRoleById(Long id) {
         return roleRepository.findById(id)
-                .orElseThrow(() -> new CustomException("Role not found for this ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Role not found for this ID: " + id));
     }
 
     // ✅ Create a new role
     @Transactional
-    public UserRoles createRole(UserRoles role) {
+    public Roles createRole(Roles role) {
         return roleRepository.save(role);
     }
 
@@ -43,15 +42,15 @@ public class RolesService {
     // ✅ Delete role
     @Transactional
     public void deleteRole(Long id) {
-        UserRoles role = getRoleById(id); // Ensuring the role exists before deleting
+        Roles role = getRoleById(id); // Ensuring the role exists before deleting
         roleRepository.delete(role);
     }
 
-    public UserRoles getRoleByName(String roleName) {
-        return roleRepository.findByName(roleName).orElseThrow(()->new CustomException("Role not found"));
+    public Roles getRoleByName(String roleName) {
+        return roleRepository.findByName(roleName).orElseThrow(()->new IllegalArgumentException("Role not found"));
     }
 
-    public Optional<UserRoles> findByName(String roleName) {
+    public Optional<Roles> findByName(String roleName) {
         return roleRepository.findByName(roleName);
     }
 

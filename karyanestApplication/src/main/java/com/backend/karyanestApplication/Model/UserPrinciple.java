@@ -1,5 +1,6 @@
 package com.backend.karyanestApplication.Model;
 
+import com.example.rbac.Model.Roles;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +19,7 @@ public class UserPrinciple implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        UserRole role = user.getUserRole(); // Assuming user has a method getRole() that returns a single UserRole
+        Roles role = user.getRole(); // Assuming user has a method getRole() that returns a single UserRole
         return Collections.singletonList(new SimpleGrantedAuthority(role.getName()));
     }
 

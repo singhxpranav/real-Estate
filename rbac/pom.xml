@@ -12,29 +12,17 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>rbac</name>
 	<description>Demo project for Spring Boot</description>
-	<url/>
-<!--	<licenses>-->
-<!--		<license/>-->
-<!--	</licenses>-->
-<!--	<developers>-->
-<!--		<developer/>-->
-<!--	</developers>-->
-<!--	<scm>-->
-<!--		<connection/>-->
-<!--		<developerConnection/>-->
-<!--		<tag/>-->
-<!--		<url/>-->
-<!--	</scm>-->
+	<packaging>jar</packaging>
 	<properties>
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>com.example</groupId>
-			<artifactId>karyanestApplication</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-<!--			<scope>compile</scope>-->
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.example</groupId>-->
+<!--			<artifactId>karyanestApplication</artifactId>-->
+<!--			<version>0.0.1-SNAPSHOT</version>-->
+<!--&lt;!&ndash;			<scope>compile</scope>&ndash;&gt;-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>

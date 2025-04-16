@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class AssignPermissionRequestDTO {
     private Long roleId;
-    private String path;
+    private String permission;
 }

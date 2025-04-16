@@ -1,5 +1,6 @@
 package com.backend.karyanestApplication.Model;
 
+import com.example.rbac.Model.Roles;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -91,7 +92,7 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
-    private UserRole userRole;
+    private Roles role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Property> properties;

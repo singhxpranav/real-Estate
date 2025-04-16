@@ -6,8 +6,11 @@ import com.backend.karyanestApplication.DTO.UserResponseDTO;
 import com.backend.karyanestApplication.Exception.CustomException;
 import com.backend.karyanestApplication.Model.PasswordResetToken;
 import com.backend.karyanestApplication.Model.User;
-import com.backend.karyanestApplication.Model.UserRole;
+//import com.backend.karyanestApplication.Model.UserRole;
 import com.backend.karyanestApplication.Repositry.*;
+//import com.example.rbac.Repository.RolesPermissionRepository;
+import com.example.rbac.Model.Roles;
+import com.example.rbac.Repository.RolesRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
@@ -46,13 +49,13 @@ public class UserService {
     private EmailService emailService;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private RolesRepository roleRepository;
 
-    @Autowired
-    private PermissionRepository permissionRepository;
-
-    @Autowired
-    private RolePermissionRepository rolePermissionRepository;
+//    @Autowired
+//    private PermissionRepository permissionRepository;
+//
+//    @Autowired
+//    private RolesPermissionRepository rolePermissionRepository;
 
     @Autowired
     private  PasswordResetTokenRepository passwordResetTokenRepository;
@@ -212,9 +215,9 @@ public class UserService {
      * @throws CustomException if default role cannot be found
      */
     private void setDefaultUserRole(User user) {
-        UserRole defaultRole = roleRepository.findByName("ROLE_USER")
+        Roles defaultRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new CustomException("Default role not found!"));
-        user.setUserRole(defaultRole);
+        user.setRole(defaultRole);
     }
     /**
      * Generate and store OTP for login
@@ -387,7 +390,7 @@ public class UserService {
                 .createdAt(user.getCreatedAt())
                 .updateAt(user.getUpdatedAt())
                 .favoritePropertyIds(favoritePropertyIds)
-                .userRole(user.getUserRole().getName())
+                .userRole(user.getRole().getName())
                 .build();
     }
 
@@ -451,7 +454,7 @@ public class UserService {
             return false;
         }
         // Directly compare role name
-        return "ROLE_ADMIN".equals(user.getUserRole().getName());
+        return "ROLE_ADMIN".equals(user.getRole().getName());
     }
 
     /**
@@ -461,7 +464,7 @@ public class UserService {
      */
     public User findLeastAssignedAgent() {
         Long id = 1L;
-        List<User> agents = userRepo.findByUserRoleId(id); // Fetch all agents
+        List<User> agents = userRepo.findByRoleId(id); // Fetch all agents
         if (agents.isEmpty()) return null;
 
         return agents.stream()
@@ -481,11 +484,11 @@ public class UserService {
         if (user == null) {
             throw new CustomException("User not found with username: " + username);
         }
-        Long oldRoleId = user.getUserRole().getId();
-        UserRole newRole = roleRepository.findById(newRoleId)
+        Long oldRoleId = user.getRole().getId();
+        Roles newRole = roleRepository.findById(newRoleId)
                 .orElseThrow(() -> new CustomException("Role not found with roleId: " + newRoleId));
 
-        user.setUserRole(newRole);
+        user.setRole(newRole);
         userRepo.save(user);
     }
 
