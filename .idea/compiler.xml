@@ -9,12 +9,13 @@
         <outputRelativeToContentRoot value="true" />
         <module name="module-b" />
         <module name="Authentication" />
+        <module name="notification" />
         <module name="karyanestApplication" />
         <module name="rbac" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="module-a" target="21" />
+      <module name="module-b" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

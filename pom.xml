@@ -14,6 +14,8 @@
         <module>rbac</module>
         <module>Authentication</module>
         <module>karyanestApplication</module>
+        <module>rbac</module>
+        <module>notification</module>
     </modules>
 
     <properties>
