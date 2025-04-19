@@ -1,4 +1,3 @@
-
 package com.backend.karyanestApplication.Controller;
 
 import com.backend.karyanestApplication.DTO.ChatRequest;
@@ -10,6 +9,7 @@ import com.backend.karyanestApplication.Service.UserService;
 import com.example.Authentication.Component.UserContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -25,32 +25,39 @@ public class ChatController {
     private final UserContext userContext;
     private final UserService userService;
     private final PropertyService propertyService;
+
     public ChatController(ChatService chatService, UserContext userContext, UserService userService, PropertyService propertyService) {
         this.chatService = chatService;
         this.userContext = userContext;
         this.userService = userService;
         this.propertyService = propertyService;
     }
-   @PostMapping("/start")
-     public ResponseEntity<?> startChat(@RequestBody ChatRequest chatRequest, HttpServletRequest request) {
-       Long userId = getUserId(request);
-       String Role = getUserRole(request);
 
-       Long receiverId = 1L; // Default admin ID
+    // Start a chat - Only Admin or User with chat_start authority
+    @PostMapping("/start")
+    @PreAuthorize("(hasRole('ROLE_ADMIN') and hasAuthority('chat_start')) or (hasRole('ROLE_USER') and hasAuthority('chat_start'))")
+    public ResponseEntity<?> startChat(@RequestBody ChatRequest chatRequest, HttpServletRequest request) {
+        Long userId = getUserId(request);
+        String role = getUserRole(request);
 
-       if ("PROPERTY_INQUIRY".equalsIgnoreCase(chatRequest.getType()) &&
-               (chatRequest.getPropertyId() == null || !propertyService.existsById(chatRequest.getPropertyId()))) {
-           return ResponseEntity.status(400).body("Invalid property ID for chat");
-       }
+        Long receiverId = 1L; // Default admin ID
 
-       if (!chatService.isChatAllowed(userId, Role)) {
-           return ResponseEntity.status(403).body("Chat not allowed based on this role");
-       }
+        if ("PROPERTY_INQUIRY".equalsIgnoreCase(chatRequest.getType()) &&
+                (chatRequest.getPropertyId() == null || !propertyService.existsById(chatRequest.getPropertyId()))) {
+            return ResponseEntity.status(400).body("Invalid property ID for chat");
+        }
 
-         // Create chat with default admin ID
-       return ResponseEntity.ok(chatService.createChat(chatRequest, userId, receiverId));
-   }
+        if (!chatService.isChatAllowed(userId, role)) {
+            return ResponseEntity.status(403).body("Chat not allowed based on this role");
+        }
+
+        // Create chat with default admin ID
+        return ResponseEntity.ok(chatService.createChat(chatRequest, userId, receiverId));
+    }
+
+    // Send message - Only Admin or User with chat_send authority
     @PostMapping("/send")
+    @PreAuthorize("(hasRole('ROLE_ADMIN') and hasAuthority('chat_send')) or (hasRole('ROLE_USER') and hasAuthority('chat_send'))")
     public ResponseEntity<?> sendMessage(@RequestBody MessageRequest messageRequest, HttpServletRequest request) {
         Long userId = getUserId(request);
         String role = getUserRole(request);
@@ -108,11 +115,9 @@ public class ChatController {
         return ResponseEntity.ok(fullChatHistory.toString().trim());
     }
 
-    /*
-     * Note: 'I'd' in the both below methods is conversation ID.
-     */
-    // ✅ Fetch all messages from a conversation
+    // Fetch all messages from a conversation - Only Admin or User with chat_view authority
     @GetMapping("/messages/{id}")
+    @PreAuthorize("(hasRole('ROLE_ADMIN') and hasAuthority('chat_view')) or (hasRole('ROLE_USER') and hasAuthority('chat_view'))")
     public ResponseEntity<List<String>> getMessages(@PathVariable Long id, HttpServletRequest request) {
         Long userId = getUserId(request);
 
@@ -123,30 +128,31 @@ public class ChatController {
 
         return ResponseEntity.ok(chatService.getMessages(id).getBody());
     }
-    // ✅ Close a chat (Only Admin/Owner can close)
+
+    // Close a chat - Only Admin or Owner can close
     @PostMapping("/close/{id}")
+    @PreAuthorize("(hasRole('ROLE_ADMIN') and hasAuthority('chat_close')) or (hasRole('ROLE_USER') and hasAuthority('chat_close'))")
     public ResponseEntity<?> closeChat(@PathVariable Long id, HttpServletRequest request) {
-        String Role = getUserRole(request);
+        String role = getUserRole(request);
 
         // Only Admin or Owner can close a chat
-        if (!Role.equals("ROLE_ADMIN") && !Role.equals("ROLE_OWNER")) {
+        if (!role.equals("ROLE_ADMIN") && !role.equals("ROLE_OWNER")) {
             return ResponseEntity.status(403).body("Only Admin or Owner can close a chat");
         }
 
         chatService.closeConversation(id);
         return ResponseEntity.ok("Chat closed successfully");
     }
-    // 🔑 Extract user ID from JWT authentication
+
+    // Extract user ID from JWT authentication
     private Long getUserId(HttpServletRequest request) {
         String username = userContext.getUsername(request);
         return userService.getUserIdByUsername(username); // Assumes user ID is stored in JWT subject
     }
 
-    // 🔑 Extract user role from JWT authentication
+    // Extract user role from JWT authentication
     private String getUserRole(HttpServletRequest request) {
-         String username = userContext.getUsername(request);
+        String username = userContext.getUsername(request);
         return userContext.getUserRole(request);
     }
-
 }
-

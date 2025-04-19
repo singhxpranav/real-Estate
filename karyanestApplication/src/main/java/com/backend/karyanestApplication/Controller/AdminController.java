@@ -59,7 +59,7 @@ public class AdminController {
      * @param request Map containing username and new role ID
      * @return ResponseEntity with update message
      */
-    @PreAuthorize("hasAuthority('userRole_update')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('userRole_update')")
     @Operation(summary = "Update user role", description = "Update the role of an existing user")
     @PatchMapping("/update_user_role")
     public ResponseEntity<Map<String, String>> updateUserRole(@RequestBody Map<String, String> request) {

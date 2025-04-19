@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -39,15 +40,16 @@ public class LeadNoteController {
     private static final Logger logger = LoggerFactory.getLogger(LeadsController.class);
 
     private final LeadNoteService leadNoteService;
-   private  final LeadService leadService;
+    private  final LeadService leadService;
     @Autowired
-    public LeadNoteController(LeadNoteService leadNoteService, UserContext userContext, JwtUtil jwtUtil, UserService userService, LeadService leadService) {
+    public LeadNoteController(LeadNoteService leadNoteService, LeadService leadService) {
         this.leadNoteService = leadNoteService;
         this.leadService = leadService;
     }
 
     @Operation(summary = "Get notes by lead ID", description = "Retrieve all notes for a specific lead")
-    @GetMapping("/lead/{id}")
+    @GetMapping("/note/{id}")
+    @PreAuthorize("(hasRole('ROLE_ADMIN') and hasAuthority('leadNote_getNoteByID')) or hasRole('ROLE_AGENT')")
     public ResponseEntity<List<LeadNoteResponseDTO>> getNotesByLeadId(@PathVariable("leadId") Long leadId) {
         try {
             List<LeadNote> notes = leadNoteService.getAllNotesByleadId(leadId);
@@ -62,6 +64,7 @@ public class LeadNoteController {
 
     @Operation(summary = "Get lead note by note ID", description = "Retrieve a specific lead note by its ID")
     @GetMapping("/{id}")
+    @PreAuthorize("(hasRole('ROLE_ADMIN') and hasAuthority('leadNote_manageByLeadID')) or hasRole('ROLE_AGENT')")
     public ResponseEntity<LeadNoteResponseDTO> getLeadNoteById(@PathVariable("id") Long noteId) {
         try {
             Optional<LeadNote> note = leadNoteService.getLeadNoteById(noteId);
@@ -77,6 +80,7 @@ public class LeadNoteController {
 
 
     @PostMapping("/{id}")
+    @PreAuthorize("(hasRole('ROLE_ADMIN') and hasAuthority('leadNote_manageByLeadID')) or hasRole('ROLE_AGENT')")
     public ResponseEntity<?> addLeadNote(
             @PathVariable Long id,
             @Valid @RequestBody MultipleNoteDtos multipleNoteDtos,
@@ -126,6 +130,7 @@ public class LeadNoteController {
     }
     @Operation(summary = "Update lead note", description = "Update an existing lead note by its ID")
     @PutMapping("/{id}")
+    @PreAuthorize("(hasRole('ROLE_ADMIN') and hasAuthority('leadNote_manageByLeadID')) or hasRole('ROLE_AGENT')")
     public ResponseEntity<LeadNoteResponseDTO> updateLeadNote(
             @PathVariable("id") Long id,
             @Valid @RequestBody LeadNoteDTO leadNoteDTO) {
@@ -154,6 +159,7 @@ public class LeadNoteController {
     }
     @Operation(summary = "Delete lead note", description = "Delete a lead note by its ID")
     @DeleteMapping("/{id}")
+    @PreAuthorize("(hasRole('ROLE_ADMIN') and hasAuthority('leadNote_manageByLeadID'))")
     public ResponseEntity<String> deleteLeadNote(@PathVariable("id") Long noteId) {
         try {
             // Check if the note exists

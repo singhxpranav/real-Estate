@@ -17,11 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping("/v1/rbac/roles")
 public class RolesController {
-
 
     @Autowired
     private RolesService roleService;
@@ -29,9 +27,8 @@ public class RolesController {
     @Autowired
     private AssignPermissionsService assignPermissionsService;
 
-
     @GetMapping
-    @PreAuthorize("hasAuthority('roles_get')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('roles_get')")
     public ResponseEntity<Map<String, List<String>>> getAllRoles() {
         List<Roles> roles = roleService.getAllRoles();
         List<String> roleNames = roles.stream()
@@ -41,22 +38,23 @@ public class RolesController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('roles_create')")
     public ResponseEntity<Map<String, String>> createRole(@RequestBody Map<String, Object> requestBody) {
         Map<String, String> response = new HashMap<>();
         String roleName = (String) requestBody.get("name");
         String roleDescription = (String) requestBody.get("description");
-        // Check if role already exists
+
         Optional<Roles> existingRole = roleService.findByName(roleName);
         if (existingRole.isPresent()) {
             response.put("message", "Role already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        // Create new role
+
         Roles role = new Roles();
         role.setName(roleName);
         role.setDescription(roleDescription);
         Roles createdRole = roleService.createRole(role);
+
         response.put("message", "Role created successfully");
         response.put("role name", createdRole.getName());
         response.put("role description", createdRole.getDescription());
@@ -64,7 +62,7 @@ public class RolesController {
     }
 
     @PostMapping("/permission")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('assgin_permssion_to_role')")
     public ResponseEntity<Map<String, Object>> assignPermissionToRole(@RequestBody AssignPermissionRequestDTO request) {
         assignPermissionsService.assignPermissionToRole(request.getRoleId(), request.getPermission());
         return ResponseEntity.ok(Map.of("message", "Permission assigned to role successfully"));

@@ -509,7 +509,7 @@ public class Auth implements AuthService, AuthHelper {
         updateUserInternalDTO.setStatus("Active");
         setUserDetailsInternally(updateUserInternalDTO);
         // Generate and return response
-        AuthResponseDTO authResponse = getJwtResponse(jwtToken, refreshToken, UserRole,rolePermissions);
+        AuthResponseDTO authResponse = getJwtResponse(jwtToken, refreshToken, UserRole);
         return ResponseEntity.ok(authResponse);
     }
 
@@ -519,30 +519,11 @@ public class Auth implements AuthService, AuthHelper {
      * @param jwtToken     the JWT token
      * @param refreshToken the refresh token
      * @param userRole     the user role
-     * @param rolesPermissions the role permissions
      * @return the authentication response DTO
      */
-    public AuthResponseDTO getJwtResponse(String jwtToken, String refreshToken, String userRole, List<RolesPermission> rolesPermissions) {
-        // Group permissions by route path
-        List<Map<String, Object>> permissions = rolesPermissions.stream()
-                .filter(rp -> rp.getPermissions() != null && rp.getPermissions().getPath() != null)
-                .collect(Collectors.groupingBy(
-                        rp -> rp.getPermissions().getPath(),
-                        Collectors.mapping(
-                                rp -> rp.getPermissions().getPermission(),
-                                Collectors.toList()
-                        )
-                ))
-                .entrySet()
-                .stream()
-                .map(entry -> Map.of(
-                        "path", entry.getKey(),
-                        "actions", entry.getValue()
-                ))
-                .toList();
-
+    public AuthResponseDTO getJwtResponse(String jwtToken, String refreshToken, String userRole) {
         // Return JWT response with permissions
-        return new AuthResponseDTO(jwtToken, refreshToken, userRole, permissions);
+        return new AuthResponseDTO(jwtToken, refreshToken, userRole);
     }
     /**
      * Verify OTP for user registration.
