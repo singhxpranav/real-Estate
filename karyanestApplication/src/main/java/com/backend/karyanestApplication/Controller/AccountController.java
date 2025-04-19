@@ -1,18 +1,23 @@
 package com.backend.karyanestApplication.Controller;
 
-import com.backend.karyanestApplication.DTO.AuthResponseDTO;
+import com.example.Authentication.Controller.AuthController;
 import com.backend.karyanestApplication.DTO.UserPreferencesDTO;
 import com.backend.karyanestApplication.DTO.UserRegistrationDTO;
 import com.backend.karyanestApplication.DTO.UserResponseDTO;
 import com.backend.karyanestApplication.Model.User;
-import com.backend.karyanestApplication.Service.JwtService;
+//import com.example.Authentication.Service.JwtService;
 import com.backend.karyanestApplication.Service.UserService;
-import com.backend.karyanestApplication.UTIL.UserContext;
+import com.example.Authentication.Component.UserContext;
+import com.example.Authentication.DTO.AuthResponseDTO;
+import com.example.Authentication.DTO.UserDTO;
+import com.example.Authentication.Service.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -30,19 +35,14 @@ import java.util.Map;
 @Validated
 @Tag(name = "User", description = "User operations")
 public class AccountController {
-
+    @Autowired
+    private Auth auth;
+    @Autowired
+    private UserContext userContext;
     private final UserService userService;
-   private final UserContext userContext;
-   private final JwtService jwtService;
     private static final Logger logger = LoggerFactory.getLogger(LeadsController.class);
-
-    enum LoginMethod {
-        USERNAME, EMAIL, PHONE
-    }
-    public AccountController(UserService userService, UserContext userContext, JwtService jwtService, AuthController authController) {
+    public AccountController(UserService userService) {
         this.userService = userService;
-        this.userContext = userContext;
-        this.jwtService = jwtService;
     }
     /**
      * Get all users.
@@ -50,6 +50,7 @@ public class AccountController {
      * @return ResponseEntity with a list of all users
      */
     @Operation(summary = "Get all users", description = "Retrieve a list of all registered users")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('users_getAll'))")
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<UserResponseDTO> users = userService.getAllUsers();
@@ -64,11 +65,12 @@ public class AccountController {
      */
     @Operation(summary = "Get user by ID", description = "Retrieve user details by user ID")
     @GetMapping("{id}")
+    @PreAuthorize("(hasRole('ROLE_ADMIN')) or (hasRole('ROLE_USER') and hasAuthority('users_getByID')) or (hasRole('ROLE_AGENT') and hasAuthority('users_getByID'))")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
        UserResponseDTO user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
-
+    @PreAuthorize("(hasRole('ROLE_ADMIN') or hasRole('ROLE_USER') or (hasRole('ROLE_AGENT') and hasAuthority('users_getDetail')))")
     @GetMapping("/currentUser")
     public ResponseEntity<?> getUserDetails(HttpServletRequest request) {
         String username = userContext.getUsername(request);
@@ -85,7 +87,22 @@ public class AccountController {
         UserResponseDTO userDTO = userService.mapToDTO(user);
 
         // ✅ JWT Response
-        ResponseEntity<?> jwtResponseEntity = jwtService.generateAuthResponseForUser(user);
+        UserDTO dto = new UserDTO();
+        System.out.println(user.getId());
+        dto.setUserId(user.getId());
+        dto.setFullName(user.getFullName());
+        dto.setEmail(user.getEmail());
+        dto.setUsername(user.getUsername());
+        dto.setPassword(user.getPassword());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        if (user.getRole() != null) {
+            dto.setRoleId(user.getRole().getId());
+            dto.setRole(user.getRole().getName());
+        }
+        dto.setStatus(user.getStatus() != null ? user.getStatus().name() : null);
+        dto.setVerificationMethod(user.getVerificationMethod() != null ? user.getVerificationMethod().name() : null);
+        dto.setVerificationStatus(user.getVerificationStatus() != null ? user.getVerificationStatus().name() : null);
+        ResponseEntity<?> jwtResponseEntity = auth.generateAuthResponseForUser(dto);
 
         // ✅ JWT Response ki body extract karein
         Object jwtBody = jwtResponseEntity.getBody();
@@ -99,10 +116,7 @@ public class AccountController {
         // ✅ LinkedHashMap for ordered entries
         Map<String, Object> responseBody = new LinkedHashMap<>();
         responseBody.put("user", userDTO);            // First item
-        responseBody.put("jwtToken", authResponse.getJwtToken());
-        responseBody.put("refreshToken", authResponse.getRefreshToken());
         responseBody.put("role", authResponse.getRole());
-        responseBody.put("permissions", authResponse.getPermissions());
 
       // ✅ Final Response return karein
         return ResponseEntity.ok(responseBody);
@@ -115,6 +129,7 @@ public class AccountController {
      * @return ResponseEntity with updated user details
      */
     @Operation(summary = "Update user details", description = "Update details of an existing user by user ID")
+    @PreAuthorize("(hasRole('ROLE_ADMIN')) or (hasRole('ROLE_USER') and hasAuthority('users_getByID')) or (hasRole('ROLE_AGENT') and hasAuthority('users_getByID'))")
     @PutMapping("{id}")
     public ResponseEntity<UserRegistrationDTO> updateUser(
             @PathVariable Long id,
@@ -149,6 +164,7 @@ public class AccountController {
      * @return ResponseEntity with a deactivation message
      */
     @Operation(summary = "Delete (deactivate) user by ID", description = "Deactivate a user by user ID")
+    @PreAuthorize("(hasRole('ROLE_ADMIN')) or (hasRole('ROLE_USER') and hasAuthority('users_getByID')) or (hasRole('ROLE_AGENT') and hasAuthority('users_getByID'))")
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         User user = userService.findById(id);
@@ -169,6 +185,7 @@ public class AccountController {
      * @return ResponseEntity containing a success message or updated user data, or an error message if the request fails.
      */
     @Operation(summary = "Activate user or update preferences", description = "Activate a previously deactivated user by ID or update user preferences.")
+    @PreAuthorize("(hasRole('ROLE_ADMIN')) or (hasRole('ROLE_USER') and hasAuthority('users_getByID')) or (hasRole('ROLE_AGENT') and hasAuthority('users_getByID'))")
     @PatchMapping("/{id}")
     public ResponseEntity<?> activateUser(
             @PathVariable Long id,

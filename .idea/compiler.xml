@@ -8,17 +8,16 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="notification" />
+        <module name="module-b" />
+        <module name="Authentication" />
         <module name="karyanestApplication" />
         <module name="rbac" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="module-a" target="11" />
-      <module name="module-b" target="11" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Authentication" options="" />
       <module name="rbac" options="" />
     </option>
   </component>

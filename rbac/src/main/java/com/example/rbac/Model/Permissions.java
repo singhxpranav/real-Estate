@@ -21,8 +21,8 @@ public class Permissions {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-//    @Column(name = "path", unique = true)
-//    private String path;
+    @Column(name = "path", unique = true)
+    private String path;
 
     @Column(name ="permission")
     private String permission;
