@@ -4,7 +4,7 @@ import com.backend.karyanestApplication.DTO.JWTUserDTO;
 import com.backend.karyanestApplication.DTO.LeadNoteDTO;
 import com.backend.karyanestApplication.DTO.LeadNoteResponseDTO;
 import com.backend.karyanestApplication.DTO.MultipleNoteDtos;
-import com.backend.karyanestApplication.Exception.CustomException;
+import com.example.module_b.ExceptionAndExceptionHandler.CustomException;
 import com.backend.karyanestApplication.Model.Lead;
 import com.backend.karyanestApplication.Model.LeadNote;
 import com.backend.karyanestApplication.Model.User;

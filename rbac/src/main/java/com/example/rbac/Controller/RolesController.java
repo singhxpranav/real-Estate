@@ -31,12 +31,12 @@ public class RolesController {
 
 
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('roles_get')")
     public ResponseEntity<Map<String, List<String>>> getAllRoles() {
         List<Roles> roles = roleService.getAllRoles();
         List<String> roleNames = roles.stream()
                 .map(Roles::getName)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(Map.of("roleNames", roleNames));
     }
 

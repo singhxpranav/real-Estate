@@ -7,7 +7,7 @@ import com.backend.karyanestApplication.Model.Message;
 import com.backend.karyanestApplication.Service.ChatService;
 import com.backend.karyanestApplication.Service.PropertyService;
 import com.backend.karyanestApplication.Service.UserService;
-import com.backend.karyanestApplication.UTIL.UserContext;
+import com.example.Authentication.Component.UserContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,10 +1,10 @@
 package com.backend.karyanestApplication.Controller;
 
 import com.backend.karyanestApplication.DTO.UserActivityLogResponseDTO;
-import com.backend.karyanestApplication.JwtSecurity.JwtUtil;
+import com.example.Authentication.UTIL.JwtUtil;
 import com.backend.karyanestApplication.Service.UserActivityLogService;
 import com.backend.karyanestApplication.Service.UserService;
-import com.backend.karyanestApplication.UTIL.UserContext;
+import com.example.Authentication.Component.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

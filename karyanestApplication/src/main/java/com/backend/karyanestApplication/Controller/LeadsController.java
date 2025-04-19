@@ -1,15 +1,14 @@
 package com.backend.karyanestApplication.Controller;
 
 import com.backend.karyanestApplication.DTO.*;
-import com.backend.karyanestApplication.Exception.CustomException;
-import com.backend.karyanestApplication.JwtSecurity.JwtUtil;
+import com.example.module_b.ExceptionAndExceptionHandler.CustomException;
+import com.example.Authentication.UTIL.JwtUtil;
 import com.backend.karyanestApplication.Model.Lead;
-import com.backend.karyanestApplication.Model.LeadNote;
 import com.backend.karyanestApplication.Model.User;
 import com.backend.karyanestApplication.Service.LeadNoteService;
 import com.backend.karyanestApplication.Service.LeadService;
 import com.backend.karyanestApplication.Service.UserService;
-import com.backend.karyanestApplication.UTIL.UserContext;
+import com.example.Authentication.Component.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;

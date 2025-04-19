@@ -3,29 +3,23 @@ package com.backend.karyanestApplication.Service;
 import com.backend.karyanestApplication.DTO.UserPreferencesDTO;
 import com.backend.karyanestApplication.DTO.UserRegistrationDTO;
 import com.backend.karyanestApplication.DTO.UserResponseDTO;
-import com.backend.karyanestApplication.Exception.CustomException;
-import com.backend.karyanestApplication.Model.PasswordResetToken;
 import com.backend.karyanestApplication.Model.User;
-//import com.backend.karyanestApplication.Model.UserRole;
+import com.example.Authentication.DTO.UserDTO;
+import com.example.Authentication.Service.EmailService;
 import com.backend.karyanestApplication.Repositry.*;
-//import com.example.rbac.Repository.RolesPermissionRepository;
+import com.example.module_b.ExceptionAndExceptionHandler.CustomException;
 import com.example.rbac.Model.Roles;
+import com.example.Authentication.Service.Auth;
 import com.example.rbac.Repository.RolesRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,31 +40,13 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private EmailService emailService;
-
-    @Autowired
     private RolesRepository roleRepository;
-
-//    @Autowired
-//    private PermissionRepository permissionRepository;
-//
-//    @Autowired
-//    private RolesPermissionRepository rolePermissionRepository;
-
     @Autowired
-    private  PasswordResetTokenRepository passwordResetTokenRepository;
+    @Lazy
+    private Auth auth;
 
     @Autowired
     private PropertyFavoriteRepository propertyFavoriteRepository;
-
-    // Configuration constants
-    private static final String VERIFICATION_LINK_TEMPLATE = "http://karynest-real-state.azurewebsites.net/v1/auth/verify?email=";
-
-    // In-memory OTP storage
-    private final Map<String, String> otpStorage = new HashMap<>();
-
-    // In-memory registration OTP storage (separate from login OTP)
-    private final Map<String, String> registrationOtpStorage = new HashMap<>();
 
 //    /**
 //     * Register a new user in the system.
@@ -219,40 +195,8 @@ public class UserService {
                 .orElseThrow(() -> new CustomException("Default role not found!"));
         user.setRole(defaultRole);
     }
-    /**
-     * Generate and store OTP for login
-     *
-     * @param phoneNumber the user's phone number
-     * @return the generated OTP
-     */
-    public String generateAndStoreOtp(String phoneNumber) {
-        // For simplicity, using "123" as in original code
-        // In production, use a secure random generator
-        String otp = "123456";
-        otpStorage.put(phoneNumber, otp);
-        registrationOtpStorage.put(phoneNumber,otp);
-        return otp;
-    }
 
-    /**
-     * Send verification email to user.
-     *
-     * @param email the user's email address
-     * @param token the verification token
-     * @throws CustomException if email sending fails
-     */
-    public void sendVerificationEmail(String email, String token) {
-        try {
-            String verificationLink = VERIFICATION_LINK_TEMPLATE + "?email=" + email;
-            String emailBody = "Click the link to verify your account: <a href=\"" + verificationLink + "\">Verify Now</a>"
-                    + "<br><br><strong>Note:</strong> Your verification token is <b>" + token + "</b>. "
-                    + "Without this token, verification will not be completed.";
 
-            emailService.sendVerificationEmail(email, "Verify your email", emailBody);
-        } catch (MessagingException e) {
-            throw new CustomException("Failed to send verification email: " + e.getMessage());
-        }
-    }
 
     /**
      * Generate a unique username based on the user's full name.
@@ -274,22 +218,6 @@ public class UserService {
 
         // Step 3: Return the unique username
         return username;
-    }
-
-    /**
-     * Verify a user's email.
-     *
-     * @param email the email to verify
-     * @throws CustomException if user not found
-     */
-    @Transactional
-    public void verifyUser(String email) {
-        User user = userRepo.findByemail(email);
-        if (user == null) {
-            throw new CustomException("User not found");
-        }
-        user.setVerificationStatus(User.VerificationStatus.Verified);
-        userRepo.save(user);
     }
 
     /**
@@ -430,16 +358,6 @@ public class UserService {
     }
 
 
-    /**
-     * Update user's last login time.
-     *
-     * @param user the user to update
-     */
-    @Transactional
-    public void updateUserLastLogin(User user) {
-        user.setLastLogin(Timestamp.valueOf(LocalDateTime.now()));
-        userRepo.save(user);
-    }
 
     /**
      * Check if user has admin role.
@@ -510,27 +428,6 @@ public class UserService {
     }
 
     /**
-     * Get username by phone number.
-     *
-     * @param phoneNumber the phone number to search for
-     * @return the username, or null if user not found
-     */
-    public String getUsernameByPhoneNumber(String phoneNumber) {
-        User user = userRepo.findByPhoneNumber(phoneNumber);
-        return (user != null) ? user.getUsername() : null;
-    }
-
-    /**
-     * Get user by phone number.
-     *
-     * @param phoneNumber the phone number to search for
-     * @return the user, or null if not found
-     */
-    public User getUserByPhoneNumber(String phoneNumber) {
-        return userRepo.findByPhoneNumber(phoneNumber);
-    }
-
-    /**
      * Find user by ID.
      *
      * @param id the user ID
@@ -542,67 +439,6 @@ public class UserService {
     }
 
     /**
-     * Generic method to verify OTP for both login and registration.
-     *
-     * @param phoneNumber the phone number to verify OTP against
-     * @param otpEntered the OTP entered by the user
-     * @param otpStorage the storage map where OTPs are stored
-     * @return boolean indicating if OTP is valid
-     */
-    private boolean verifyOtp(String phoneNumber, String otpEntered, Map<String, String> otpStorage) {
-        // Check if phone number exists in the provided OTP storage
-        if (!otpStorage.containsKey(phoneNumber)) {
-            return false;
-        }
-
-        // Get stored OTP for the phone number
-        String storedOtp = otpStorage.get(phoneNumber);
-
-        // Compare entered OTP with stored OTP
-        if (storedOtp != null && storedOtp.equals(otpEntered)) {
-            // Remove OTP from storage after successful verification
-            otpStorage.remove(phoneNumber);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Verify OTP for user login.
-     */
-    public boolean verifyLoginOtp(String phoneNumber, String otpEntered) {
-        return verifyOtp(phoneNumber, otpEntered, otpStorage);
-    }
-    /**
-     * Verify OTP for forget password.
-     */
-    public boolean verifyOtp(String phoneNumber, String otpEntered) {
-        return verifyOtp(phoneNumber, otpEntered, otpStorage);
-    }
-    /**
-     * Verify OTP for user registration.
-     */
-    public boolean verifyRegistrationOtp(String phoneNumber, String otpEntered) {
-        boolean isValid = verifyOtp(phoneNumber, otpEntered, registrationOtpStorage);
-
-        if (isValid) {
-            // Update user verification status
-            User user = userRepo.findByPhoneNumber(phoneNumber);
-            if (user != null) {
-                user.setVerificationStatus(User.VerificationStatus.Verified);
-                userRepo.save(user);
-            }
-        }
-        return isValid;
-    }
-
-    public String getUsernameByemail(String email) {
-        User user = userRepo.findByemail(email);
-        return (user != null) ? user.getUsername() : null;
-    }
-
-
-    /**
      * Get user by email
      *
      * @param email The email to search for
@@ -612,75 +448,12 @@ public class UserService {
         // Implementation depends on your repository
         return userRepo.findByemail(email);
     }
-    /**
-     * Save a password reset token for a user
-     *
-     * @param userId The ID of the user
-     * @param resetToken The token to save
-     */
-    @Transactional
-    public void saveToken(Long userId, String resetToken) {
-        // Create expiration time (e.g., 1 hour from now)
-        Instant expiryDate = Instant.now().plus(1, ChronoUnit.HOURS);
-
-        // Create and save the token entity
-        PasswordResetToken token = new PasswordResetToken();
-        token.setToken(resetToken);
-        token.setUserId(userId);
-        token.setExpiryDate(expiryDate);
-
-        passwordResetTokenRepository.save(token);
-    }
-
-    /**
-     * Verify a password reset token
-     *
-     * @param token The token to verify
-     * @return The user ID if the token is valid, null otherwise
-     */
-    public Long verifyPasswordResetToken(String token) {
-        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token);
-
-        if (resetToken == null) {
-            return null; // Token does not exist
-        }
-        if (resetToken.getExpiryDate().isBefore(Instant.now())) {
-            passwordResetTokenRepository.delete(resetToken);
-            throw new IllegalStateException("Token has expired. Please request a new one.");
-        }
-        return resetToken.getUserId();
-    }
-
-  @Transactional
-    public void updatePassword(Long userId, String newPassword) {
-        if (!isValidPassword(newPassword)) {
-            System.out.println();
-            throw new CustomException("Password does not meet security requirements");
-        }
-
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new CustomException("User not found"));
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepo.save(user);
-    }
-
-    // Example Password Validation Function
-    private boolean isValidPassword(String password) {
-        return password.length() >= 8 && password.matches(".*[A-Z].*") && password.matches(".*\\d.*");
-    }
     @Transactional
     public User findByPhoneNumber(String phoneNumber) {
          return userRepo.findByPhoneNumber(phoneNumber);
     }
-
-    public ResponseEntity<?> notifyUser(User user, Phase phase) {
-        return switch (phase) {
-            case REGISTRATION -> sendVerificationLinkAndResponse(user);
-            case LOGIN -> sendLoginResponse(user);
-            default -> ResponseEntity.badRequest()
-                    .body(Map.of("error", "Invalid notification phase"));
-        };
+    public ResponseEntity<?> notifyUser(User user) {
+        return sendVerificationLinkAndResponse(user);
     }
 
     private ResponseEntity<?> sendVerificationLinkAndResponse(User user) {
@@ -689,7 +462,7 @@ public class UserService {
 
         if (user.getVerificationMethod() == User.VerificationMethod.Phone) {
             // Phone verification scenario
-            String otp = generateAndStoreOtp(user.getPhoneNumber());
+            String otp = auth.generateAndStoreOtp(user.getPhoneNumber());
             // Generate and send OTP for phone verification
             // Here you would integrate with SMS service to send the OTP
             // smsService.sendOtp(userDTO.getPhoneNumber(), otp);
@@ -699,7 +472,7 @@ public class UserService {
             verificationUrl = "http://karynest-real-state.azurewebsites.net/v1/verify-user-otp";
         } else {
             // Email verification scenario
-            String token = GenerateToken(user);
+            String token = auth.GenerateToken(user.getId(),user.getEmail());
             verificationType = "email";
             verificationUrl = "http://karynest-real-state.azurewebsites.net/v1/verify?email=" +
                     user.getEmail() + "&token=" + token;
@@ -724,46 +497,6 @@ public class UserService {
                         ),
                         "helpMessage", "Need assistance? Contact our support team at support@karynest.com"
                 ));
-    }
-    private ResponseEntity<?> sendLoginResponse(User user) {
-        String verificationType;
-        String verificationUrl;
-
-        if (user.getVerificationMethod() == User.VerificationMethod.Phone) {
-            // Phone verification scenario
-            String otp = generateAndStoreOtp(user.getPhoneNumber());
-            // Here you would integrate with SMS service to send the OTP
-            verificationType = "SMS";
-            verificationUrl = "http://karynest-real-state.azurewebsites.net/v1/verify-user-otp";
-        } else {
-            // Email verification scenario
-            String token = GenerateToken(user);
-            verificationType = "email";
-            verificationUrl = "http://karynest-real-state.azurewebsites.net/v1/verify?email=" +
-                    user.getEmail() + "&token=" + token;
-        }
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(Map.of(
-                        "verificationType", verificationType,
-                        "verificationUrl", verificationUrl,
-                        "verificationStatus", "Your account is not verified.",
-                        "message", "Please complete the verification process.",
-                        "userId", user.getId(),
-                        "username", user.getUsername(),
-                        "verificationMethod", user.getVerificationMethod().name(),
-                        "actionRequired", "Please verify your " + verificationType + " to unlock full platform features."
-                ));
-    }
-    public String GenerateToken(User user)
-    {
-        // Generate reset token
-        String Token = UUID.randomUUID().toString();
-        // Store token in database with expiration
-        saveToken(user.getId(), Token);
-        // Send verification email
-        sendVerificationEmail(user.getEmail(),Token);
-        return Token;
     }
 
     /**

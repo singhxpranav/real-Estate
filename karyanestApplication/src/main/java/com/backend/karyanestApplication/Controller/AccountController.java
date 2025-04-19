@@ -1,16 +1,20 @@
 package com.backend.karyanestApplication.Controller;
 
-import com.backend.karyanestApplication.DTO.AuthResponseDTO;
+import com.example.Authentication.Controller.AuthController;
 import com.backend.karyanestApplication.DTO.UserPreferencesDTO;
 import com.backend.karyanestApplication.DTO.UserRegistrationDTO;
 import com.backend.karyanestApplication.DTO.UserResponseDTO;
 import com.backend.karyanestApplication.Model.User;
-import com.backend.karyanestApplication.Service.JwtService;
+//import com.example.Authentication.Service.JwtService;
 import com.backend.karyanestApplication.Service.UserService;
-import com.backend.karyanestApplication.UTIL.UserContext;
+import com.example.Authentication.Component.UserContext;
+import com.example.Authentication.DTO.AuthResponseDTO;
+import com.example.Authentication.DTO.UserDTO;
+import com.example.Authentication.Service.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -30,19 +34,14 @@ import java.util.Map;
 @Validated
 @Tag(name = "User", description = "User operations")
 public class AccountController {
-
+    @Autowired
+    private Auth auth;
+    @Autowired
+    private UserContext userContext;
     private final UserService userService;
-   private final UserContext userContext;
-   private final JwtService jwtService;
     private static final Logger logger = LoggerFactory.getLogger(LeadsController.class);
-
-    enum LoginMethod {
-        USERNAME, EMAIL, PHONE
-    }
-    public AccountController(UserService userService, UserContext userContext, JwtService jwtService, AuthController authController) {
+    public AccountController(UserService userService) {
         this.userService = userService;
-        this.userContext = userContext;
-        this.jwtService = jwtService;
     }
     /**
      * Get all users.
@@ -85,7 +84,22 @@ public class AccountController {
         UserResponseDTO userDTO = userService.mapToDTO(user);
 
         // ✅ JWT Response
-        ResponseEntity<?> jwtResponseEntity = jwtService.generateAuthResponseForUser(user);
+        UserDTO dto = new UserDTO();
+        System.out.println(user.getId());
+        dto.setUserId(user.getId());
+        dto.setFullName(user.getFullName());
+        dto.setEmail(user.getEmail());
+        dto.setUsername(user.getUsername());
+        dto.setPassword(user.getPassword());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        if (user.getRole() != null) {
+            dto.setRoleId(user.getRole().getId());
+            dto.setRole(user.getRole().getName());
+        }
+        dto.setStatus(user.getStatus() != null ? user.getStatus().name() : null);
+        dto.setVerificationMethod(user.getVerificationMethod() != null ? user.getVerificationMethod().name() : null);
+        dto.setVerificationStatus(user.getVerificationStatus() != null ? user.getVerificationStatus().name() : null);
+        ResponseEntity<?> jwtResponseEntity = auth.generateAuthResponseForUser(dto);
 
         // ✅ JWT Response ki body extract karein
         Object jwtBody = jwtResponseEntity.getBody();

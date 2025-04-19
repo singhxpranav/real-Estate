@@ -8,7 +8,6 @@
         <version>0.0.1-SNAPSHOT</version> <!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>com.example</groupId>
 	<artifactId>module-a</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>module-a</name>

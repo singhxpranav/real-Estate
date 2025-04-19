@@ -3,7 +3,7 @@ package com.backend.karyanestApplication.Service;
 import com.backend.karyanestApplication.DTO.PropertyResourceDTO;
 import com.backend.karyanestApplication.DTO.PropertyDTO;
 import com.backend.karyanestApplication.DTO.PropertySearchRequestDTO;
-import com.backend.karyanestApplication.Exception.CustomException;
+import com.example.module_b.ExceptionAndExceptionHandler.CustomException;
 import com.backend.karyanestApplication.Model.Property;
 import com.backend.karyanestApplication.Model.PropertyPriceChange;
 import com.backend.karyanestApplication.Model.PropertyResource;
