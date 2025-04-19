@@ -1,4 +1,4 @@
-package com.backend.karyanestApplication.Exception;
+package com.example.module_b.ExceptionAndExceptionHandler;
 
 
 import lombok.AllArgsConstructor;

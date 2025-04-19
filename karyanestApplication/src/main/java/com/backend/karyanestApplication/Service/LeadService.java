@@ -1,7 +1,7 @@
 package com.backend.karyanestApplication.Service;
 
 import com.backend.karyanestApplication.DTO.*;
-import com.backend.karyanestApplication.Exception.CustomException;
+import com.example.module_b.ExceptionAndExceptionHandler.CustomException;
 import com.backend.karyanestApplication.Model.Lead;
 import com.backend.karyanestApplication.Model.LeadNote;
 import com.backend.karyanestApplication.Model.Property;

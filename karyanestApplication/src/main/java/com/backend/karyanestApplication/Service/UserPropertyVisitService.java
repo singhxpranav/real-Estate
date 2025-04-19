@@ -1,6 +1,6 @@
 package com.backend.karyanestApplication.Service;
 
-import com.backend.karyanestApplication.Exception.CustomException;
+import com.example.module_b.ExceptionAndExceptionHandler.CustomException;
 import com.backend.karyanestApplication.Model.UserPropertyVisit;
 import com.backend.karyanestApplication.Repositry.UserPropertyVisitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
