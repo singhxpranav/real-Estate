@@ -10,7 +10,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>module-a</module>
         <module>module-b</module>
         <module>rbac</module>
         <module>Authentication</module>
