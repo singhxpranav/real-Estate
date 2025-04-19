@@ -10,10 +10,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>module-a</module>
-        <module>module-b</module>
         <module>karyanestApplication</module>
         <module>rbac</module>
+        <module>notification</module>
     </modules>
 
     <properties>
