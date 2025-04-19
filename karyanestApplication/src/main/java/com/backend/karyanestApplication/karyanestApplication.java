@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EnableJpaRepositories
-@ComponentScan(basePackages = {"com.example.rbac", "com.backend.karyanestApplication", "com.example.module_a", "com.example.module_b"})
+@ComponentScan(basePackages = {"com.example.rbac", "com.example.notification", "com.backend.karyanestApplication"})
 public class karyanestApplication {
 	public static void main(String[] args) {    
 		SpringApplication.run(karyanestApplication.class, args);
