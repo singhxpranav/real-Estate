@@ -13,8 +13,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="Authentication" target="21" />
       <module name="module-a" target="11" />
-      <module name="module-b" target="11" />
+      <module name="module-b" target="22" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

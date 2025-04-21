@@ -10,6 +10,7 @@ import com.backend.karyanestApplication.Service.UserService;
 import com.backend.karyanestApplication.UTIL.UserContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class ChatController {
         this.propertyService = propertyService;
     }
    @PostMapping("/start")
+   @PreAuthorize("hasRole('ROLE_USER') or hasAuthority('ifgbibfgihdfbfdfjvbifdjbisfbiafbi')")
      public ResponseEntity<?> startChat(@RequestBody ChatRequest chatRequest, HttpServletRequest request) {
        Long userId = getUserId(request);
        String Role = getUserRole(request);
