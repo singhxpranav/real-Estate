@@ -33,7 +33,6 @@ public class ChatController {
         this.propertyService = propertyService;
     }
    @PostMapping("/start")
-   @PreAuthorize("hasRole('ROLE_USER') or hasAuthority('ifgbibfgihdfbfdfjvbifdjbisfbiafbi')")
      public ResponseEntity<?> startChat(@RequestBody ChatRequest chatRequest, HttpServletRequest request) {
        Long userId = getUserId(request);
        String Role = getUserRole(request);
